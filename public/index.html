@@ -7,19 +7,119 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
+        .tab {
+            overflow: hidden;
+            background-color: #3498db;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
             cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: white;
+        }
+        .tab button:hover {
+            background-color: #2980b9;
+        }
+        .tab button.active {
+            background-color: #1c5980;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать в KyzvoCoin!</h1>
-    <p>Это пример интерфейса.</p>
-    <button onclick="alert('Кнопка нажата!')">Нажми меня</button>
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Points')">Поинты</button>
+        <button class="tablinks" onclick="openTab(event, 'Referral')">Рефералы</button>
+        <button class="tablinks" onclick="openTab(event, 'Tasks')">Задания</button>
+        <button class="tablinks" onclick="openTab(event, 'Admin')">Админка</button>
+    </div>
+
+    <div id="Points" class="tabcontent">
+        <h2>Ваши поинты: <span id="points">0</span></h2>
+    </div>
+
+    <div id="Referral" class="tabcontent">
+        <h2>Реферальная система</h2>
+        <p>Ваша реферальная ссылка: <code id="referralLink"></code></p>
+    </div>
+
+    <div id="Tasks" class="tabcontent">
+        <h2>Задания</h2>
+        <ul id="taskList"></ul>
+    </div>
+
+    <div id="Admin" class="tabcontent">
+        <h2>Админка</h2>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Поинты</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные будут добавлены через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Функция для переключения вкладок
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // По умолчанию открываем вкладку "Поинты"
+        document.getElementById("Points").style.display = "block";
+        document.getElementsByClassName("tablinks")[0].className += " active";
+
+        // Пример данных
+        let points = 100;
+        document.getElementById("points").textContent = points;
+
+        const referralLink = "https://t.me/your_bot?start=ref123";
+        document.getElementById("referralLink").textContent = referralLink;
+
+        const tasks = ["Подписаться на канал", "Репостнуть запись"];
+        const taskList = document.getElementById("taskList");
+        tasks.forEach(task => {
+            const li = document.createElement("li");
+            li.textContent = task;
+            taskList.appendChild(li);
+        });
+
+        const users = [
+            { id: 1, name: "Иван", points: 50 },
+            { id: 2, name: "Мария", points: 100 },
+        ];
+        const userTable = document.getElementById("userTable").getElementsByTagName("tbody")[0];
+        users.forEach(user => {
+            const row = userTable.insertRow();
+            row.insertCell(0).textContent = user.id;
+            row.insertCell(1).textContent = user.name;
+            row.insertCell(2).textContent = user.points;
+        });
+    </script>
 </body>
 </html>
