@@ -1,6 +1,14 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import sqlite3
+import logging
+
+# Настройка логирования
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 # Инициализация базы данных
 def init_db():
@@ -55,26 +63,17 @@ def save_referral(user_id, username, referrer_id):
     conn.commit()
     conn.close()
 
-# Получение списка рефералов
-def get_referrals(user_id):
-    conn = sqlite3.connect('bot.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT referred_user_id, level FROM referrals WHERE user_id = ?', (user_id,))
-    referrals = cursor.fetchall()
-    conn.close()
-    return [{'user_id': ref[0], 'level': ref[1]} for ref in referrals]
-
-# Инициализация базы данных при запуске
-init_db()
-
 # Команда /start
 def start(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     username = update.message.from_user.username
 
+    logger.info(f"Новый пользователь: ID={user_id}, username={username}")
+
     # Проверяем, есть ли реферер
     if context.args and context.args[0].startswith("ref"):
         referrer_id = int(context.args[0][3:])  # Извлекаем ID реферера
+        logger.info(f"Реферер найден: ID={referrer_id}")
         save_referral(user_id, username, referrer_id)  # Сохраняем реферала
         update.message.reply_text(f"Вы были приглашены пользователем {referrer_id}!")
 
@@ -82,40 +81,55 @@ def start(update: Update, context: CallbackContext):
     referral_link = f"https://t.me/kyzvomy_bot?start=ref{user_id}"
     update.message.reply_text(f"Ваша реферальная ссылка: {referral_link}")
 
-# Команда /referrals
-def referrals(update: Update, context: CallbackContext):
-    user_id = update.message.from_user.id
-    referrals_list = get_referrals(user_id)
-
-    if referrals_list:
-        message = "Ваши рефералы:\n"
-        for ref in referrals_list:
-            message += f"- Пользователь {ref['user_id']} (Уровень {ref['level']})\n"
-        update.message.reply_text(message)
-    else:
-        update.message.reply_text("У вас пока нет рефералов.")
-
 # Команда /points
 def points(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     conn = sqlite3.connect('bot.db')
     cursor = conn.cursor()
     cursor.execute('SELECT points FROM users WHERE user_id = ?', (user_id,))
-    points = cursor.fetchone()[0]
+    result = cursor.fetchone()
     conn.close()
 
-    update.message.reply_text(f"Ваши поинты: {points}")
+    if result:
+        points = result[0]
+        update.message.reply_text(f"Ваши поинты: {points}")
+    else:
+        update.message.reply_text("Вы еще не зарегистрированы.")
+
+# Команда /referrals
+def referrals(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    conn = sqlite3.connect('bot.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT referred_user_id, level FROM referrals WHERE user_id = ?', (user_id,))
+    referrals_list = cursor.fetchall()
+    conn.close()
+
+    if referrals_list:
+        message = "Ваши рефералы:\n"
+        for ref in referrals_list:
+            message += f"- Пользователь {ref[0]} (Уровень {ref[1]})\n"
+        update.message.reply_text(message)
+    else:
+        update.message.reply_text("У вас пока нет рефералов.")
 
 # Основная функция
 def main():
+    # Инициализация базы данных
+    init_db()
+
+    # Укажите ваш токен бота
     updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI", use_context=True)
     dispatcher = updater.dispatcher
 
+    # Регистрация обработчиков команд
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("referrals", referrals))
     dispatcher.add_handler(CommandHandler("points", points))
+    dispatcher.add_handler(CommandHandler("referrals", referrals))
 
+    # Запуск бота
     updater.start_polling()
+    logger.info("Бот запущен и готов к работе.")
     updater.idle()
 
 if __name__ == "__main__":
