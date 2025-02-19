@@ -80,7 +80,7 @@ def start(update: Update, context: CallbackContext):
 
     # Создаем кнопку для открытия мини-приложения
     keyboard = [
-        [InlineKeyboardButton("Открыть мини-приложение", web_app={"url": "https://telegram-bot-1-i7hd.onrender.com"})]
+        [InlineKeyboardButton("Открыть мини-приложение", web_app={"url": "https://your-render-url.com"})]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -124,32 +124,39 @@ app = Flask(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    update = Update.de_json(request.get_json(force=True), updater.bot)
-    dispatcher.process_update(update)
-    return 'ok'
+    try:
+        update = Update.de_json(request.get_json(force=True), updater.bot)
+        dispatcher.process_update(update)
+        return 'ok'
+    except Exception as e:
+        logger.error(f"Ошибка при обработке обновления: {e}")
+        return 'error', 500
 
 # Основная функция
 def main():
     global updater, dispatcher
 
-    # Инициализация базы данных
-    init_db()
+    try:
+        # Инициализация базы данных
+        init_db()
 
-    # Укажите ваш токен бота
-    updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI", use_context=True)
-    dispatcher = updater.dispatcher
+        # Укажите ваш токен бота
+        updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI", use_context=True)
+        dispatcher = updater.dispatcher
 
-    # Регистрация обработчиков команд
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("points", points))
-    dispatcher.add_handler(CommandHandler("referrals", referrals))
+        # Регистрация обработчиков команд
+        dispatcher.add_handler(CommandHandler("start", start))
+        dispatcher.add_handler(CommandHandler("points", points))
+        dispatcher.add_handler(CommandHandler("referrals", referrals))
 
-    # Установка вебхука
-    updater.start_webhook(listen="100.20.92.101", port=443, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
-    updater.bot.set_webhook("https://telegram-bot-ypez.onrender.com")
+        # Установка вебхука
+        updater.start_webhook(listen="0.0.0.0", port=443, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
+        updater.bot.set_webhook("https://your-render-url.com/webhook")
 
-    # Запуск Flask-приложения
-    app.run(host='0.0.0.0', port=443)
+        # Запуск Flask-приложения
+        app.run(host='0.0.0.0', port=443)
+    except Exception as e:
+        logger.critical(f"Критическая ошибка: {e}")
 
 if __name__ == "__main__":
     main()
