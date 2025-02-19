@@ -133,6 +133,35 @@ def main():
 
     updater.start_polling()
     updater.idle()
+    from flask import Flask, jsonify
+import sqlite3
+
+app = Flask(__name__)
+
+@app.route('/api/user')
+def get_user():
+    user_id = 123  # Замените на реальный ID пользователя
+    conn = sqlite3.connect('bot.db')
+    cursor = conn.cursor()
+
+    # Получаем данные пользователя
+    cursor.execute('SELECT points FROM users WHERE user_id = ?', (user_id,))
+    points = cursor.fetchone()[0]
+
+    # Получаем рефералов
+    cursor.execute('SELECT referred_user_id, level FROM referrals WHERE user_id = ?', (user_id,))
+    referrals = cursor.fetchall()
+
+    conn.close()
+
+    return jsonify({
+        'points': points,
+        'referral_link': f"https://t.me/your_bot?start=ref{user_id}",
+        'referrals': [{'username': f"User {ref[0]}", 'level': ref[1]} for ref in referrals]
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
