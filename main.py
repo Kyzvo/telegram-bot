@@ -80,7 +80,7 @@ def start(update: Update, context: CallbackContext):
 
     # Создаем кнопку для открытия мини-приложения
     keyboard = [
-        [InlineKeyboardButton("Открыть мини-приложение", web_app={"url": "https://your-render-url.com"})]
+        [InlineKeyboardButton("Открыть мини-приложение", web_app={"url": "https://telegram-bot-ypez.onrender.com"})]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -124,6 +124,14 @@ app = Flask(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    # Проверяем IP-адрес запроса
+    client_ip = request.remote_addr
+    allowed_ips = {"100.20.92.101", "44.225.181.72", "44.227.217.144"}
+
+    if client_ip not in allowed_ips:
+        logger.warning(f"Доступ запрещен для IP: {client_ip}")
+        return 'Forbidden', 403
+
     try:
         update = Update.de_json(request.get_json(force=True), updater.bot)
         dispatcher.process_update(update)
@@ -151,7 +159,7 @@ def main():
 
         # Установка вебхука
         updater.start_webhook(listen="0.0.0.0", port=443, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
-        updater.bot.set_webhook("https://your-render-url.com/webhook")
+        updater.bot.set_webhook("https://telegram-bot-ypez.onrender.com/webhook")
 
         # Запуск Flask-приложения
         app.run(host='0.0.0.0', port=443)
