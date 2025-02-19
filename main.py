@@ -140,7 +140,7 @@ def main():
     dispatcher.add_handler(CommandHandler("referrals", referrals))
 
     # Установка вебхука
-    updater.start_webhook(listen="0.0.0.0", port=5000, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
+    updater.start_webhook(listen="0.0.0.0", port=443, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
     updater.bot.set_webhook("https://telegram-bot-ypez.onrender.com")
 
     # Запуск Flask-приложения
