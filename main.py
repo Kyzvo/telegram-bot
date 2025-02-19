@@ -119,7 +119,7 @@ def main():
     init_db()
 
     # Укажите ваш токен бота
-    updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI", use_context=True)
+    updater = Updater("7723248117:AAGPFMPIkUkF3tE4EdR7cl9m1IG0f6fmPEs", use_context=True)
     dispatcher = updater.dispatcher
 
     # Регистрация обработчиков команд
