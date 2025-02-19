@@ -79,7 +79,7 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text(f"Вы были приглашены пользователем {referrer_id}!")
 
     # Генерация реферальной ссылки
-    referral_link = f"https://t.me/your_bot?start=ref{user_id}"
+    referral_link = f"https://t.me/kyzvomy_bot?start=ref{user_id}"
     update.message.reply_text(f"Ваша реферальная ссылка: {referral_link}")
 
 # Команда /referrals
