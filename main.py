@@ -1,3 +1,5 @@
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
 import sqlite3
 
 # Инициализация базы данных
@@ -64,9 +66,8 @@ def get_referrals(user_id):
 
 # Инициализация базы данных при запуске
 init_db()
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
 
+# Команда /start
 def start(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     username = update.message.from_user.username
@@ -81,18 +82,8 @@ def start(update: Update, context: CallbackContext):
     referral_link = f"https://t.me/your_bot?start=ref{user_id}"
     update.message.reply_text(f"Ваша реферальная ссылка: {referral_link}")
 
-def main():
-    updater = Updater("YOUR_TELEGRAM_BOT_TOKEN", use_context=True)
-    dispatcher = updater.dispatcher
-
-    dispatcher.add_handler(CommandHandler("start", start))
-
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == "__main__":
-    main()
-    def referrals(update: Update, context: CallbackContext):
+# Команда /referrals
+def referrals(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     referrals_list = get_referrals(user_id)
 
@@ -104,16 +95,8 @@ if __name__ == "__main__":
     else:
         update.message.reply_text("У вас пока нет рефералов.")
 
-def main():
-    updater = Updater("YOUR_TELEGRAM_BOT_TOKEN", use_context=True)
-    dispatcher = updater.dispatcher
-
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("referrals", referrals))
-
-    updater.start_polling()
-    updater.idle()
-    def points(update: Update, context: CallbackContext):
+# Команда /points
+def points(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     conn = sqlite3.connect('bot.db')
     cursor = conn.cursor()
@@ -123,6 +106,7 @@ def main():
 
     update.message.reply_text(f"Ваши поинты: {points}")
 
+# Основная функция
 def main():
     updater = Updater("YOUR_TELEGRAM_BOT_TOKEN", use_context=True)
     dispatcher = updater.dispatcher
@@ -130,57 +114,6 @@ def main():
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("referrals", referrals))
     dispatcher.add_handler(CommandHandler("points", points))
-
-    updater.start_polling()
-    updater.idle()
-    from flask import Flask, jsonify
-import sqlite3
-
-app = Flask(__name__)
-
-@app.route('/api/user')
-def get_user():
-    user_id = 123  # Замените на реальный ID пользователя
-    conn = sqlite3.connect('bot.db')
-    cursor = conn.cursor()
-
-    # Получаем данные пользователя
-    cursor.execute('SELECT points FROM users WHERE user_id = ?', (user_id,))
-    points = cursor.fetchone()[0]
-
-    # Получаем рефералов
-    cursor.execute('SELECT referred_user_id, level FROM referrals WHERE user_id = ?', (user_id,))
-    referrals = cursor.fetchall()
-
-    conn.close()
-
-    return jsonify({
-        'points': points,
-        'referral_link': f"https://t.me/your_bot?start=ref{user_id}",
-        'referrals': [{'username': f"User {ref[0]}", 'level': ref[1]} for ref in referrals]
-    })
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext
-
-# Команда /start
-def start(update: Update, context: CallbackContext):
-    # Создаем кнопку
-    keyboard = [[InlineKeyboardButton("Open Mini App", web_app={"url": "https://telegram-bot-1-i7hd.onrender.com"})]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Отправляем сообщение с кнопкой
-    update.message.reply_text("Добро пожаловать! Нажмите кнопку ниже, чтобы открыть мини-приложение.", reply_markup=reply_markup)
-
-# Основная функция
-def main():
-    # Вставьте сюда токен вашего бота
-    updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
-    dispatcher = updater.dispatcher
-
-    dispatcher.add_handler(CommandHandler("start", start))
 
     updater.start_polling()
     updater.idle()
