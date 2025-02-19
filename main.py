@@ -13,7 +13,7 @@ def start(update: Update, context: CallbackContext):
 # Основная функция
 def main():
     # Вставьте сюда токен вашего бота
-    updater = Updater("7723248117:AAGPFMPIkUkF3tE4EdR7cl9m1IG0f6fmPEs")
+    updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
