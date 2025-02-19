@@ -2,7 +2,7 @@
 setTimeout(() => {
     document.getElementById('loader').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
-}, 2000); // Задержка 2 секунды
+}, 2000);
 
 // Переключение вкладок
 const tabs = document.querySelectorAll('.tab-button');
@@ -18,14 +18,18 @@ tabs.forEach((tab, index) => {
     });
 });
 
-// Пример данных
-document.getElementById('pointsValue').textContent = 100;
-document.getElementById('referralLink').textContent = "https://t.me/your_bot?start=ref123";
+// Загрузка данных
+async function loadData() {
+    const response = await fetch('/api/user'); // Замените на ваш API
+    const data = await response.json();
 
-const tasks = ["Подписаться на канал", "Репостнуть запись"];
-const taskList = document.getElementById('taskList');
-tasks.forEach(task => {
-    const li = document.createElement('li');
-    li.textContent = task;
-    taskList.appendChild(li);
-});
+    document.getElementById('pointsValue').textContent = data.points;
+    document.getElementById('referralLink').textContent = data.referral_link;
+
+    const referralList = document.getElementById('referralList');
+    referralList.innerHTML = data.referrals.map(ref => `
+        <li>${ref.username} (Уровень ${ref.level})</li>
+    `).join('');
+}
+
+loadData();
