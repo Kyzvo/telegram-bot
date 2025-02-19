@@ -20,15 +20,22 @@ tabs.forEach((tab, index) => {
 
 // Загрузка данных
 async function loadData() {
-    const response = await fetch('/api/user'); // Замените на ваш API
+    const user_id = 123; // Замените на реальный ID пользователя
+    const response = await fetch(`https://telegram-bot-api-ckw4.onrender.com/api/user?user_id=${user_id}`);
     const data = await response.json();
 
+    if (data.error) {
+        console.error(data.error);
+        return;
+    }
+
+    // Отображаем данные
     document.getElementById('pointsValue').textContent = data.points;
     document.getElementById('referralLink').textContent = data.referral_link;
 
     const referralList = document.getElementById('referralList');
     referralList.innerHTML = data.referrals.map(ref => `
-        <li>${ref.username} (Уровень ${ref.level})</li>
+        <li>Пользователь ${ref.user_id} (Уровень ${ref.level})</li>
     `).join('');
 }
 
