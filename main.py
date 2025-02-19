@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import sqlite3
 import logging
@@ -78,9 +78,14 @@ def start(update: Update, context: CallbackContext):
         save_referral(user_id, username, referrer_id)  # Сохраняем реферала
         update.message.reply_text(f"Вы были приглашены пользователем {referrer_id}!")
 
-    # Генерация реферальной ссылки
-    referral_link = f"https://t.me/kyzvomy_bot?start=ref{user_id}"
-    update.message.reply_text(f"Ваша реферальная ссылка: {referral_link}")
+    # Создаем кнопку для открытия мини-приложения
+    keyboard = [
+        [InlineKeyboardButton("Открыть мини-приложение", web_app={"url": "https://telegram-bot-1-i7hd.onrender.com"})]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Отправляем сообщение с кнопкой
+    update.message.reply_text("Нажмите кнопку ниже, чтобы открыть мини-приложение:", reply_markup=reply_markup)
 
 # Команда /points
 def points(update: Update, context: CallbackContext):
@@ -144,7 +149,7 @@ def main():
     updater.bot.set_webhook("https://telegram-bot-ypez.onrender.com")
 
     # Запуск Flask-приложения
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=443)
 
 if __name__ == "__main__":
     main()
