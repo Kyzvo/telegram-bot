@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import sqlite3
 import logging
+from flask import Flask, request
 
 # Настройка логирования
 logging.basicConfig(
@@ -113,13 +114,24 @@ def referrals(update: Update, context: CallbackContext):
     else:
         update.message.reply_text("У вас пока нет рефералов.")
 
+# Создаем Flask-приложение
+app = Flask(__name__)
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), updater.bot)
+    dispatcher.process_update(update)
+    return 'ok'
+
 # Основная функция
 def main():
+    global updater, dispatcher
+
     # Инициализация базы данных
     init_db()
 
     # Укажите ваш токен бота
-    updater = Updater("7723248117:AAGPFMPIkUkF3tE4EdR7cl9m1IG0f6fmPEs", use_context=True)
+    updater = Updater("7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI", use_context=True)
     dispatcher = updater.dispatcher
 
     # Регистрация обработчиков команд
@@ -127,10 +139,12 @@ def main():
     dispatcher.add_handler(CommandHandler("points", points))
     dispatcher.add_handler(CommandHandler("referrals", referrals))
 
-    # Запуск бота
-    updater.start_polling()
-    logger.info("Бот запущен и готов к работе.")
-    updater.idle()
+    # Установка вебхука
+    updater.start_webhook(listen="0.0.0.0", port=5000, url_path="7943667357:AAHAWLqXTdpkfXjjlbgNmeNUSnJGUSVXbVI")
+    updater.bot.set_webhook("https://your-render-url.com/webhook")
+
+    # Запуск Flask-приложения
+    app.run(host='0.0.0.0', port=5000)
 
 if __name__ == "__main__":
     main()
